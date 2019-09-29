@@ -10,6 +10,26 @@ Globals:
     Timeout: 3
 
 Resources:
+  S3:
+    Type: AWS::S3::Bucket
+  RolePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: imagereplacer-policy
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+            Resource:
+              Fn::Join:
+                - '/'
+                -
+                  - !GetAtt S3.Arn
+                  - "*"
+      Roles:
+        - !Ref FunctionRole
   Function:
     Type: AWS::Serverless::Function
     Properties:
@@ -22,7 +42,9 @@ Resources:
           Properties:
             Path: /
             Method: post
-
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref S3
 Outputs:
   Api:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
@@ -33,3 +55,5 @@ Outputs:
   IamRole:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt FunctionRole.Arn
+  S3Bucket:
+    Value: !Ref S3
