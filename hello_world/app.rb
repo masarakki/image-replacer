@@ -1,5 +1,5 @@
-# require 'httparty'
 require 'json'
+require 'aws-sdk'
 
 def response(message = '')
   {
