@@ -1,3 +1,5 @@
+require 'aws-sdk'
+
 namespace :deploy do
   task :build do
     sh 'sam build'
@@ -8,7 +10,10 @@ namespace :deploy do
   end
 
   task deploy: :package do
-    sh 'sam deploy --template-file packaged.yaml --region us-east-1 --capabilities CAPABILITY_IAM --stack-name image-replacer'
+    client = Aws::SecretsManager::Client.new
+    secrets = JSON.parse(client.get_secret_value(secret_id: 'image-replacer-secrets').secret_string)
+
+    sh "aws cloudformation deploy --template-file packaged.yaml --region us-east-1 --capabilities CAPABILITY_IAM --stack-name image-replacer --parameter-overrides SlackAccessToken=#{secrets['SLACK_ACCESS_TOKEN']}"
   end
 end
 

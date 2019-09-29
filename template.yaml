@@ -8,7 +8,9 @@ Description: >
 Globals:
   Function:
     Timeout: 3
-
+Parameters:
+  SlackAccessToken:
+    Type: String
 Resources:
   S3:
     Type: AWS::S3::Bucket
@@ -46,6 +48,7 @@ Resources:
       Environment:
         Variables:
           BUCKET_NAME: !Ref S3
+          SLACK_ACCESS_TOKEN: !Ref SlackAccessToken
 Outputs:
   Api:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
