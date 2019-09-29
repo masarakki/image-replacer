@@ -1,5 +1,6 @@
 require 'json'
 require 'aws-sdk'
+require 'faraday'
 
 def response(message = '')
   {
@@ -11,6 +12,22 @@ def response(message = '')
 end
 
 def handle_event(event)
+  if event['type'] == 'message' && event['files']
+    s3 = Aws::S3::Client.new
+    if event['user'] == 'UBYV3DW5S'
+      event['files'].select { |file| file['mimetype'].match?(/image/) && !file['is_external'] }.map do |file|
+        response = Faraday.get(file['url_private_download']) do |req|
+          req.headers['Authorization'] = "Bearer #{ENV['SLACK_ACCESS_TOKEN']}"
+        end
+        if response.status == 200
+          key = "#{file['id']}.#{file['filetype']}"
+          s3.put_object(acl: 'public-read', body: response.body, bucket: ENV['BUCKET_NAME'], key: key)
+          key
+        end
+      end
+    end
+  end
+
   # noop!
 end
 
