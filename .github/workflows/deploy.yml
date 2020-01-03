@@ -1,0 +1,14 @@
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.8.0
+      - run: pip install aws-sam-cli
+      - run: sam build --use-container
