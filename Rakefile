@@ -6,7 +6,7 @@ namespace :deploy do
   end
 
   task package: :build do
-    sh 'sam package --output-template packaged.yaml --s3-bucket masarakki-sam-deploy'
+    sh 'sam package --output-template-file packaged.yaml --s3-bucket masarakki-sam-deploy'
   end
 
   task deploy: :package do

@@ -14,7 +14,7 @@ jobs:
       - name: sam build
         run: sam build --use-container
       - name: sam package
-        run: sam package --output-template packaged.yaml --s3-bucket masarakki-sam-deploy
+        run: sam package --output-template-file packaged.yaml --s3-bucket masarakki-sam-deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
