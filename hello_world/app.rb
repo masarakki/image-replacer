@@ -37,10 +37,10 @@ def handle_event(event)
     object = Aws::S3::Object.new(bucket_name: ENV['BUCKET_NAME'], key: key)
     thumbnail = Faraday::UploadIO.new(StringIO.new(thumb.body), file['mimetype'])
     p ENV, file
-    remote_file = slack.get('/api/files.remote.add',
-                            token: ENV['BOT_ACCESS_TOKEN'],
-                            external_id: file['id'], title: file['title'],
-                            external_url: object.public_url, preview_image: thumbnail)
+    remote_file = slack.post('/api/files.remote.add',
+                             token: ENV['BOT_ACCESS_TOKEN'],
+                             external_id: file['id'], title: file['title'],
+                             external_url: object.public_url, preview_image: thumbnail)
     return p(:error_in_remote_file_create, remote_file) unless remote_file.status == 200
     p remote_file: remote_file
     # slack.get('/api/files.remote.share', token: ENV['USER_ACCESS_TOKEN'], channels: event['channel'], file: remote_file.body['file']['id'])
