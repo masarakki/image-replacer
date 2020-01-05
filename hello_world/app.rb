@@ -18,7 +18,7 @@ end
 
 def handle_event(event)
   slack = Faraday.new('https://slack.com/') do |conn|
-    conn.response :json, content_type: /json/
+#    conn.response :json, content_type: /json/
   end
 
   s3 = Aws::S3::Client.new
