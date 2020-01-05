@@ -18,7 +18,10 @@ end
 
 def handle_event(event)
   slack = Faraday.new('https://slack.com/') do |conn|
-#    conn.response :json, content_type: /json/
+    conn.request :multipart
+    conn.response :json, content_type: /json/
+
+    conn.adapter :net_http
   end
 
   s3 = Aws::S3::Client.new
@@ -29,7 +32,7 @@ def handle_event(event)
     thumb = Faraday.get file['thumb_360']  do |req|
       req.headers['Authorization'] = "Bearer #{ENV['USER_ACCESS_TOKEN']}"
     end
-    return p(:error_in_fetch_images, image, thumb) unless image.status == 200 && thumb.status == 200
+    return p(:error_in_fetch_images, image, thumb) unless image.success? && thumb.success?
 
     key = "#{file['id']}.#{file['filetype']}"
     s3.put_object(acl: 'public-read', body: image.body, content_type: file['mimetype'],
@@ -41,7 +44,7 @@ def handle_event(event)
                              token: ENV['BOT_ACCESS_TOKEN'],
                              external_id: file['id'], title: file['title'],
                              external_url: object.public_url, preview_image: thumbnail)
-    return p(:error_in_remote_file_create, remote_file) unless remote_file.status == 200
+    return p(:error_in_remote_file_create, remote_file) unless remote_file.success?
     p remote_file: remote_file
     # slack.get('/api/files.remote.share', token: ENV['USER_ACCESS_TOKEN'], channels: event['channel'], file: remote_file.body['file']['id'])
   end
